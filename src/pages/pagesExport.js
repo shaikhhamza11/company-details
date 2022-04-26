@@ -1,6 +1,7 @@
 export { default as Home } from "./Home"
 export { default as Login } from "./Login"
-export { default as SignUp } from "./Login"
+export { default as SignUp } from "./SignUp"
 export { default as NotFound } from "./NotFound"
 export { default as AddCompany } from "./AddCompany"
 export { default as ViewCompany } from "./ViewCompany"
+export { default as EditCompany } from "./EditCompany"

@@ -13,6 +13,15 @@ const companyReducer = (state, action) => {
           (company) => company.id !== action.payload.id
         ),
       }
+    case "edit-company": {
+      const updatedCompany = action.payload.editCompany
+      return {
+        ...state,
+        companies: state.companies.map((company) => {
+          return company.id === updatedCompany.id ? updatedCompany : company
+        }),
+      }
+    }
     default:
       return state
   }

@@ -1,62 +1,73 @@
-import React, { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { useParams, Link, useNavigate } from "react-router-dom"
 import { useCompanyContext } from "../context/company/companyContext"
+import { useEffect, useState } from "react"
 
-const AddCompany = () => {
+const EditCompany = () => {
   let navigate = useNavigate()
-  const { dispatch } = useCompanyContext()
-  const [companyName, setCompanyName] = useState("")
-  const [companyType, setCompanyType] = useState("")
-  const [customers, setCustomers] = useState([
-    {
-      id: Math.random(),
-      firstName: "",
-      lastName: "",
-    },
-  ])
+  const params = useParams()
+  const {
+    companyData: { companies },
+    dispatch,
+  } = useCompanyContext()
   const [error, setError] = useState("")
 
-  const handleAddCustomer = () => {
-    setCustomers([
-      ...customers,
-      { id: Math.random(), firstName: "", lastName: "" },
-    ])
-  }
+  const [selectedUser, setSelectedUser] = useState({
+    id: null,
+    companyName: "",
+    companyType: "",
+    customers: [],
+  })
 
-  const handleRemoveCustomer = (index) => {
-    setCustomers((prevState) => prevState.filter((cust, i) => i !== index))
+  const handleAddCustomer = () => {
+    setSelectedUser({
+      ...selectedUser,
+      customers: [
+        ...selectedUser.customers,
+        { id: Math.random(), firstName: "", lastName: "" },
+      ],
+    })
   }
 
   const handleCustomerChange = (e, index) => {
     const { name, value } = e.target
 
-    const custDetails = [...customers]
+    const custDetails = [...selectedUser.customers]
     custDetails[index][name] = value
-    setCustomers(custDetails)
+    setSelectedUser({ ...selectedUser, customers: custDetails })
+  }
+
+  const handleRemoveCustomer = (index) => {
+    setSelectedUser({
+      ...selectedUser,
+      customers: selectedUser.customers.filter((cust, i) => i !== index),
+    })
   }
 
   const onSubmit = (e) => {
     e.preventDefault()
-    const newCompany = {
-      id: Math.random(),
-      companyName,
-      companyType,
-      customers,
+    const editCompany = {
+      id: selectedUser.id,
+      companyName: selectedUser.companyName,
+      companyType: selectedUser.companyType,
+      customers: selectedUser.customers,
     }
-    if (companyName === "" || companyType === "") {
+    if (selectedUser.companyName === "" || selectedUser.companyType === "") {
       setError("Please fill all the details")
       return
     }
-    dispatch({ type: "add-company", payload: { newCompany } })
+    dispatch({ type: "edit-company", payload: { editCompany } })
     navigate("/home")
   }
 
+  useEffect(() => {
+    const company = companies.find((comp) => comp.id === +params.id)
+    setSelectedUser(company)
+  }, [params.id, companies])
   return (
     <div className="w-full container mt-20 mx-auto">
       <Link to="/home">
         <button className="btn btn-ghost font-bold">Back</button>
       </Link>
-
       {error && (
         <div className="alert alert-error shadow-lg mt-8">
           <span>{error}</span>
@@ -69,29 +80,33 @@ const AddCompany = () => {
           </label>
           <input
             id="companyName"
-            value={companyName}
+            value={selectedUser.companyName}
             type="text"
             placeholder="Type here"
             className="input input-bordered w-full "
-            onChange={(e) => setCompanyName(e.target.value)}
+            onChange={(e) =>
+              setSelectedUser({ ...selectedUser, companyName: e.target.value })
+            }
           ></input>
           <label className="label font-bold" htmlFor="companyName">
             Company Type
           </label>
           <input
             id="companyType"
-            value={companyType}
+            value={selectedUser.companyType}
             type="text"
             placeholder="Type here"
             className="input input-bordered w-full "
-            onChange={(e) => setCompanyType(e.target.value)}
+            onChange={(e) =>
+              setSelectedUser({ ...selectedUser, companyType: e.target.value })
+            }
           ></input>
 
           {/* customers  */}
           <h1 className="text-3xl font-bold text-center my-4">
             Customer Details
           </h1>
-          {customers.map(({ id, firstName, lastName }, index) => {
+          {selectedUser.customers.map(({ id, firstName, lastName }, index) => {
             return (
               <div key={id}>
                 <div className="flex my-8 justify-center">
@@ -120,12 +135,12 @@ const AddCompany = () => {
                   <button
                     className="btn ml-2"
                     onClick={() => handleRemoveCustomer(index)}
-                    disabled={customers.length === 1}
+                    disabled={selectedUser.customers.length === 1}
                   >
                     Remove
                   </button>
                 </div>
-                {customers.length - 1 === index && (
+                {selectedUser.customers.length - 1 === index && (
                   <button
                     className="btn btn-md  flex w-1/4 mx-auto"
                     onClick={handleAddCustomer}
@@ -148,4 +163,5 @@ const AddCompany = () => {
     </div>
   )
 }
-export default AddCompany
+
+export default EditCompany

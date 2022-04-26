@@ -39,7 +39,9 @@ const CompanyLists = () => {
                   <Link to={`/view/${company.id}`}>
                     <FaEye className="cursor-pointer" />
                   </Link>
-                  <FaEdit className="cursor-pointer" />
+                  <Link to={`/edit/${company.id}`}>
+                    <FaEdit className="cursor-pointer" />
+                  </Link>
                 </td>
               </tr>
             )
